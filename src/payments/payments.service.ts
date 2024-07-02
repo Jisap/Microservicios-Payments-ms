@@ -85,7 +85,7 @@ export class PaymentsService {
         }
         
         //this.logger.log({payload})
-        this.client.emit('payment.succeeded', payload)                    // Emitimos un evento a todos los microservicios mediante NATS
+        this.client.emit('payment.succeeded', payload)                    // Emitimos un evento a todos los microservicios mediante NATS -> oders-ms -> payment.succeeded
 
       break;
 
