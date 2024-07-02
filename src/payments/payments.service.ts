@@ -1,8 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { envs } from 'src/config';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { NATS_SERVICE, envs } from 'src/config';
 import Stripe from 'stripe';
 import { PaymentSessionDto } from './dto/payment-session.dto';
 import { Request, Response } from 'express';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class PaymentsService {
@@ -12,6 +13,10 @@ export class PaymentsService {
   )
 
   private readonly logger = new Logger('PaymentService')
+
+  constructor(
+    @Inject(NATS_SERVICE) private readonly client: ClientProxy            // La propiedad client ahora contiene una instancia de ClientProxy 
+  ) { }                                                                   // configurada para comunicarse con NATS.  
 
   async createPaymentSession(paymentSessionDto: PaymentSessionDto){
 
@@ -79,7 +84,8 @@ export class PaymentsService {
           receiptUrl: chargeSucceeded.receipt_url
         }
         
-        this.logger.log({payload})
+        //this.logger.log({payload})
+        this.client.emit('payment.succeeded', payload)                    // Emitimos un evento a todos los microservicios mediante NATS
 
       break;
 
